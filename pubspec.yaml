@@ -87,3 +87,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+    - family: BIZUDPGothic
+      fonts:
+        - asset: fonts/BIZUDPGothic-Regular.ttf
+        - asset: fonts/BIZUDPGothic-Bold.ttf
+          weight: 700
