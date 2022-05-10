@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'routeInfo.dart';
 import 'lineInfo.dart';
 import "dart:async";
@@ -9,14 +10,21 @@ import 'package:provider/provider.dart';
 RouteInfo _routeInfo = RouteInfo();
 LineInfo _lineInfo = LineInfo();
 
-void main() =>  
+void main(){
+
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp
+  ]);
+  
   runApp(
     ChangeNotifierProvider(
-		create: (_) => AppTheme(),
-		child: const MyApp(),
-	),
+      create: (_) => AppTheme(),
+      child: const MyApp(),
+	  )
+  );
   
-);
+}
 
 
 class AppTheme extends ChangeNotifier {
@@ -233,7 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 55),
                         child: 
                         Text(
                           _lineInfo.stationName[0],
@@ -241,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 55),
                         child: 
                         Text(
                           _lineInfo.stationName[1],
@@ -257,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 55),
                         child: 
                         Text(
                           _lineInfo.stationName[2],
@@ -265,7 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 30),
+                        padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 55),
                         child: 
                         Text(
                           _lineInfo.stationName[3],
