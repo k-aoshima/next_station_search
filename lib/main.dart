@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'routeInfo.dart';
-import 'lineInfo.dart';
-import "dart:async";
-import 'package:provider/provider.dart';
-
+import 'package:next_station_search/settings/app_settings.dart';
+import 'package:next_station_search/read_interval_setting_screen.dart';
+import 'settings/routeInfo.dart';
+import 'settings/lineInfo.dart';
+import 'dart:async';
+import 'route_setting_screen.dart';
+import 'package:next_station_search/widget/widget_utils.dart';
+import 'package:next_station_search/settings/lineInfo.dart';
+import 'package:next_station_search/settings/routeInfo.dart';
 
 
 RouteInfo _routeInfo = RouteInfo();
@@ -18,30 +22,9 @@ void main(){
   ]);
   
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AppTheme(),
-      child: const MyApp(),
-	  )
+    const MyApp(),
   );
-  
 }
-
-
-class AppTheme extends ChangeNotifier {
-	AppTheme() : _isDark = false;
-
-	bool get isDark => _isDark;
-
-	bool _isDark;
-	
-	ThemeData buildTheme()
-		=> _isDark ? ThemeData.dark() : ThemeData.light();
-	
-	void changeMode() {
-		_isDark = !_isDark;
-		notifyListeners();
-	}
-} 
 
 class MyApp extends StatelessWidget {
   
@@ -51,16 +34,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    
-
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      theme: Provider.of<AppTheme>(context).buildTheme(),
+      theme: ThemeData.light(),
+      darkTheme:ThemeData.dark(),
+      themeMode: ThemeMode.system,
       home: FutureBuilder(
         future:_getFutureData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if(snapshot.hasData){
+          if(snapshot.hasData && getData){
             print('Exit Load Settings');
             return MyHomePage(title: _routeInfo.routeName[0]);
           }else{
@@ -80,72 +63,34 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState(); 
 }
 
+int selectedLine = 0;
+bool getData = false;
+
 Future _getFutureData() async {
-  await _routeInfo.getCsvData();
-  await _lineInfo.getCsvData(_routeInfo.csvFileName[0]);
+  
+  if(!getData){
+    await _routeInfo.getCsvData();
+    selectedLine = await GetSelectedLine();
+    await _lineInfo.getCsvData(_routeInfo.csvFileName[selectedLine]); 
+    getData = true;
+  }
+
   return Future.value('');
 }
 
-///画面上にローディングアニメーションを表示する
-Widget createProgressIndicator() {
-  return Container(
-    alignment: Alignment.center,
-    child: const CircularProgressIndicator(
-      color: Colors.blue,
-    )
-  );
-}
-
-class SquarePainter extends CustomPainter {
- 
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint();
- 
-    paint.color = _routeInfo.routeColor[0];
-    var rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    canvas.drawRect(rect, paint);
-  
-  }
- 
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
-class TrianglePainter extends CustomPainter {
- 
-  @override
-  void paint(Canvas canvas, Size size) {
-    
-    Paint fillWithBluePaint = Paint()
-      ..color = _routeInfo.routeColor[0];
-    
-    var path = Path();
-    path.moveTo(size.width / 3, size.height / 3);
-    path.lineTo(size.width / 3, size.height / 2 * 1.5);
-    path.lineTo(size.width / 4 * 3, size.height / 4 * 2.1);
-    path.close();
-    canvas.drawPath(path, fillWithBluePaint);
-
-    var paint = Paint();
-    paint.color = _routeInfo.routeColor[0];
-    var rect = Rect.fromLTWH(-size.width / 1.5, size.height / 3, size.width, size.height / 2.4);
-    canvas.drawRect(rect, paint);
-  }
- 
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
 class _MyHomePageState extends State<MyHomePage> {
+
+  @override
+  void initState(){
+    super.initState();
+  }
   
   void _incrementCounter() {
     
-    _routeInfo.abbreviation[0];
-    _lineInfo.latitude[0];
+    SetSelectedLine(0);
     
   }
 
@@ -161,7 +106,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Provider.of<AppTheme>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -211,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     alignment: Alignment(-4, 0.05),
                     children: [
                       CustomPaint(
-                        painter: TrianglePainter(),
+                        painter: TrianglePainter(_routeInfo.routeColor[0]),
                         child: Container(
                             height: 60,
                             width: 45,
@@ -227,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Padding(
                     padding: EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
                     child: CustomPaint(
-                      painter: SquarePainter(),
+                      painter: SquarePainter(_routeInfo.routeColor[0]),
                       child: Container(
                         height: 75,
                         width: 5,
@@ -360,48 +304,39 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 
                 ListTile(
+                  trailing: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 15.0,
+                  ),
                   title: const Text(
                     '路線設定',
                     style: TextStyle(
                     fontFamily: "BIZUDPGothic"
                   )),
                   onTap:(){
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RouteSettingScreen(_routeInfo))
+                    );
                   }
                 ),
                 ListTile(
+                  trailing: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 15.0,
+                  ),
                   title: const Text(
                     '読込間隔設定',
                     style: TextStyle(
                     fontFamily: "BIZUDPGothic"
                   )),
                   onTap:(){
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ReadIntervalSettingScreen(_routeInfo))
+                    );
                   }
                 ),
-                Stack(
-                  children: [
-                    ListTile(
-                      title: const Text(
-                        'ダークモード',
-                        style: TextStyle(
-                        fontFamily: "BIZUDPGothic"
-                      )),
-                    ),
-                    Positioned(
-                      left: 130,
-                      top: 4,
-                      child: Switch.adaptive(
-                        activeColor: _routeInfo.routeColor[0],
-                        value: theme.isDark,
-                        onChanged: (_){
-                        setState(() {
-                          theme.changeMode();
-                        });
-                      }),
-                    )
-                  ],
-                )
               ],
             ),
           ),
