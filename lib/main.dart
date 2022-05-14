@@ -68,15 +68,15 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState(); 
 }
 
-int selectedLine = 0;
+int selectedRoute = 0;
 bool getData = false;
 
 Future _startAppSetData() async {
   
   if(!getData){
     await _routeInfo.getCsvData();
-    selectedLine = await GetSelectedLine();
-    await _lineInfo.getCsvData(_routeInfo.csvFileName[selectedLine]); 
+    await GetSettingData();
+    await _lineInfo.getCsvData(_routeInfo.csvFileName[Settings.selectedRoute]); 
     getData = true;
   }
 
@@ -85,15 +85,32 @@ Future _startAppSetData() async {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  //int _nearStationNum = 0;
-  List<String> _setStationName = [];
+  
+  final List<String> _setStationName = [];
+  
   bool _isUpList = false;
   int _selectedRoute = 0;
+  int _loopSec = 10;
+  
+  Timer? _timer;
+  
 
   @override
   void initState(){
+    if(Settings.selectedLoopTime > _loopSec){
+      _loopSec = Settings.selectedLoopTime;  
+    }
+    _selectedRoute = Settings.selectedRoute;
+
     _getDistance();
-    super.initState();
+    _timer ??= Timer.periodic(Duration(seconds: _loopSec), _onTimer);
+    super.initState(); 
+  }
+
+  void _onTimer(Timer timer){
+    var now = DateTime.now();
+    print(now.toString() + ' : loopGPS');
+    _getDistance();
   }
 
   void _setStation(int nearestStationNum){
@@ -224,7 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Padding(padding: EdgeInsetsDirectional.fromSTEB(50, 0, 10, 0),
+            Padding(padding: EdgeInsetsDirectional.fromSTEB(40, 0, 10, 0),
               child: Stack(
                 alignment: const Alignment(0, 0),
                 children: [
@@ -439,6 +456,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       context,
                       MaterialPageRoute(builder: (context) => RouteSettingScreen(_routeInfo, _selectedRoute)),
                     ).then((value) => {
+                      SetSelectedRoute(value),
                       _getFutureData(value)
                     });
                   }
@@ -456,8 +474,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   onTap:(){
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ReadIntervalSettingScreen(_routeInfo))
-                    );
+                      MaterialPageRoute(builder: (context) => ReadIntervalSettingScreen(_routeInfo, _loopSec)),
+                    ).then((value) => {
+                      setState(() {
+                        SetSelectedLoopTime(value);
+                        _loopSec = value;
+                        _timer?.cancel();
+                        if(_timer != null){
+                          _timer = null;
+                        }
+                        _timer = Timer.periodic(Duration(seconds: _loopSec), _onTimer);
+                      })
+                    });
                   }
                 ),
               ],

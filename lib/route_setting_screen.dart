@@ -61,10 +61,6 @@ class _RouteSettingScreenState extends State<RouteSettingScreen>{
           ],
         )
       ),
-
     );
-
   }
-
-  
 }
