@@ -43,11 +43,11 @@ class MyApp extends StatelessWidget {
       darkTheme:ThemeData.dark(),
       themeMode: ThemeMode.system,
       home: FutureBuilder(
-        future:_getFutureData(),
+        future:_startAppSetData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if(snapshot.hasData && getData){
             print('Exit Load Settings');
-            return MyHomePage(title: _routeInfo.routeName[0]);
+            return MyHomePage();
           }else{
             print('Start Load Settings');
             return createProgressIndicator();
@@ -61,8 +61,8 @@ class MyApp extends StatelessWidget {
 
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
+
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState(); 
@@ -71,7 +71,7 @@ class MyHomePage extends StatefulWidget {
 int selectedLine = 0;
 bool getData = false;
 
-Future _getFutureData() async {
+Future _startAppSetData() async {
   
   if(!getData){
     await _routeInfo.getCsvData();
@@ -83,19 +83,17 @@ Future _getFutureData() async {
   return Future.value('');
 }
 
-
-
 class _MyHomePageState extends State<MyHomePage> {
 
   //int _nearStationNum = 0;
   List<String> _setStationName = [];
   bool _isUpList = false;
+  int _selectedRoute = 0;
 
   @override
   void initState(){
     _getDistance();
     super.initState();
-    
   }
 
   void _setStation(int nearestStationNum){
@@ -170,6 +168,14 @@ class _MyHomePageState extends State<MyHomePage> {
     
   }
 
+  Future _getFutureData(int select) async {
+    _lineInfo = LineInfo();
+    await _lineInfo.getCsvData(_routeInfo.csvFileName[select]); 
+    _selectedRoute = select;
+    _getDistance();
+    return Future.value('');
+  }
+
   Future<void> _getDistance() async
   {
     double distance;
@@ -230,19 +236,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  Text(_routeInfo.abbreviation[0],
-                    style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: 15, fontWeight: FontWeight.bold, color: _routeInfo.routeColor[0])
+                  Text(_routeInfo.abbreviation[_selectedRoute],
+                    style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: 15, fontWeight: FontWeight.bold, color: _routeInfo.routeColor[_selectedRoute])
                   ),
                 ],
               )
             ),
             Text(
-              widget.title,
+              _routeInfo.routeName[_selectedRoute],
               style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        backgroundColor: _routeInfo.routeColor[0],
+        backgroundColor: _routeInfo.routeColor[_selectedRoute],
         
       ),
       body: SafeArea(
@@ -261,7 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     alignment: Alignment(-4, 0.05),
                     children: [
                       CustomPaint(
-                        painter: TrianglePainter(_routeInfo.routeColor[0]),
+                        painter: TrianglePainter(_routeInfo.routeColor[_selectedRoute]),
                         child: Container(
                             height: 60,
                             width: 45,
@@ -277,7 +283,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Padding(
                     padding: EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
                     child: CustomPaint(
-                      painter: SquarePainter(_routeInfo.routeColor[0]),
+                      painter: SquarePainter(_routeInfo.routeColor[_selectedRoute]),
                       child: Container(
                         height: 75,
                         width: 5,
@@ -310,7 +316,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 5),
                         child: 
                         Text(
-                          _routeInfo.routeName[0],
+                          _routeInfo.routeName[_selectedRoute],
                           style: const TextStyle(fontFamily: "BIZUDPGothic", fontSize: 15)
                         ),
                       ),
@@ -356,7 +362,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   }, 
                   icon: const Icon(Icons.arrow_drop_up),
                   iconSize: 60.0,
-                  color: _isUpList? Color.fromARGB(98, 0, 0, 0) : _routeInfo.routeColor[0],
+                  color: _isUpList? Color.fromARGB(98, 0, 0, 0) : _routeInfo.routeColor[_selectedRoute],
                 ),
                 IconButton(
                   onPressed: (){
@@ -367,7 +373,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   icon: const Icon(Icons.arrow_drop_down),
                   iconSize: 60.0,
-                  color: _isUpList? _routeInfo.routeColor[0] : Color.fromARGB(98, 0, 0, 0),
+                  color: _isUpList? _routeInfo.routeColor[_selectedRoute] : Color.fromARGB(98, 0, 0, 0),
                 ),
               ],
             ),
@@ -383,7 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: EdgeInsets.zero,
               children: [
                 DrawerHeader(
-                  decoration: BoxDecoration(color: _routeInfo.routeColor[0]),
+                  decoration: BoxDecoration(color: _routeInfo.routeColor[_selectedRoute]),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -399,14 +405,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                             ),
-                            Text(_routeInfo.abbreviation[0],
-                              style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: 20, fontWeight: FontWeight.bold, color: _routeInfo.routeColor[0])
+                            Text(_routeInfo.abbreviation[_selectedRoute],
+                              style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: 20, fontWeight: FontWeight.bold, color: _routeInfo.routeColor[_selectedRoute])
                             ),
                           ],
                         )
                       ),
                       Text(
-                        '路線：' + _routeInfo.routeName[0],
+                        '路線：' + _routeInfo.routeName[_selectedRoute],
                         style: const TextStyle(
                           fontFamily: "BIZUDPGothic",
                           fontWeight: FontWeight.bold,
@@ -428,11 +434,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(
                     fontFamily: "BIZUDPGothic"
                   )),
-                  onTap:(){
-                    Navigator.push(
+                  onTap:()async {
+                    var result = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => RouteSettingScreen(_routeInfo))
-                    );
+                      MaterialPageRoute(builder: (context) => RouteSettingScreen(_routeInfo, _selectedRoute)),
+                    ).then((value) => {
+                      _getFutureData(value)
+                    });
                   }
                 ),
                 ListTile(
@@ -458,7 +466,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         
       floatingActionButton: FloatingActionButton(
-        backgroundColor: _routeInfo.routeColor[0],
+        backgroundColor: _routeInfo.routeColor[_selectedRoute],
         onPressed: _getDistance,
         tooltip: 'Increment',
         child: const Icon(
