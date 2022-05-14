@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:next_station_search/settings/app_settings.dart';
@@ -9,6 +10,7 @@ import 'route_setting_screen.dart';
 import 'package:next_station_search/widget/widget_utils.dart';
 import 'package:next_station_search/settings/lineInfo.dart';
 import 'package:next_station_search/settings/routeInfo.dart';
+import 'package:next_station_search/model/position.dart';
 
 
 RouteInfo _routeInfo = RouteInfo();
@@ -81,17 +83,121 @@ Future _getFutureData() async {
   return Future.value('');
 }
 
+
+
 class _MyHomePageState extends State<MyHomePage> {
+
+  //int _nearStationNum = 0;
+  List<String> _setStationName = [];
+  bool _isUpList = false;
 
   @override
   void initState(){
+    _getDistance();
     super.initState();
+    
   }
+
+  void _setStation(int nearestStationNum){
+
+    _setStationName.clear();
+
+    setState(() {
+      if(_isUpList){
+        if(nearestStationNum - 2 >= 0){
+          _setStationName.add(_lineInfo.stationName[nearestStationNum - 2]);
+        }
+        else{
+          _setStationName.add("");
+        }
+        
+        if(nearestStationNum -1 >= 0){
+            _setStationName.add(_lineInfo.stationName[nearestStationNum - 1]);
+        }
+        else{
+          _setStationName.add("");
+        }
+        
+        _setStationName.add(_lineInfo.stationName[nearestStationNum]);
+
+        if(nearestStationNum + 1 < _lineInfo.stationName.length){
+          _setStationName.add(_lineInfo.stationName[nearestStationNum + 1]);
+        }
+        else{
+          _setStationName.add("");
+        }
+
+        if(nearestStationNum + 2 < _lineInfo.stationName.length){
+          _setStationName.add(_lineInfo.stationName[nearestStationNum + 2]);
+        }
+        else{
+          _setStationName.add("");
+        }
+
+      }
+      else{
+        if(nearestStationNum + 2 < _lineInfo.stationName.length){
+          _setStationName.add(_lineInfo.stationName[nearestStationNum + 2]);
+        }
+        else{
+          _setStationName.add("");
+        }
+        
+        if(nearestStationNum + 1 < _lineInfo.stationName.length){
+          _setStationName.add(_lineInfo.stationName[nearestStationNum + 1]);
+        }
+        else{
+          _setStationName.add("");
+        }
+
+        _setStationName.add(_lineInfo.stationName[nearestStationNum]);
+        
+        if(nearestStationNum -1 >= 0){
+            _setStationName.add(_lineInfo.stationName[nearestStationNum - 1]);
+        }
+        else{
+          _setStationName.add("");
+        }
+
+        if(nearestStationNum - 2 >= 0){
+          _setStationName.add(_lineInfo.stationName[nearestStationNum - 2]);
+        }
+        else{
+          _setStationName.add("");
+        }
+      }
+    });
+    
+  }
+
+  Future<void> _getDistance() async
+  {
+    double distance;
+    Map<String, double> dic = {};
+
+    int ret = 0;
+
+    for(int i = 0; i < _lineInfo.lineNo.length; i++){
+      
+      distance = await DistanceInMeters(
+          double.parse(_lineInfo.latitude[i]),
+          double.parse(_lineInfo.longitude[i])
+        );
+      dic[_lineInfo.stationName[i]] = distance;
+    }
+
+    distance = dic.values.reduce(min);
+
+    for (var item in dic.keys) {
+      if(dic[item] == distance){
+        break;
+      }
+      ret++;
+    }
   
-  void _incrementCounter() {
-    
-    SetSelectedLine(0);
-    
+    setState(() {
+      _setStation(ret);
+    });
   }
 
   double _nextStationFontSize(String nextStationName){
@@ -188,7 +294,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 55),
                         child: 
                         Text(
-                          _lineInfo.stationName[0],
+                          _setStationName.isNotEmpty? _setStationName[0] : _lineInfo.stationName[0],
                           style: const TextStyle(fontFamily: "BIZUDPGothic", fontSize: 28)
                         ),
                       ),
@@ -196,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 55),
                         child: 
                         Text(
-                          _lineInfo.stationName[1],
+                          _setStationName.isNotEmpty? _setStationName[1] : _lineInfo.stationName[1],
                           style: const TextStyle(fontFamily: "BIZUDPGothic", fontSize: 28)
                         ),
                       ),
@@ -212,15 +318,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 55),
                         child: 
                         Text(
-                          _lineInfo.stationName[2],
-                          style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: _nextStationFontSize(_lineInfo.stationName[2]))
+                          _setStationName.isNotEmpty? _setStationName[2] : _lineInfo.stationName[2],
+                          style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: _nextStationFontSize(_setStationName.isNotEmpty? _setStationName[2] : _lineInfo.stationName[2]))
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 55),
                         child: 
                         Text(
-                          _lineInfo.stationName[3],
+                          _setStationName.isNotEmpty? _setStationName[3] : _lineInfo.stationName[3],
                           style: const TextStyle(fontFamily: "BIZUDPGothic", fontSize: 28)
                         ),
                       ),
@@ -228,11 +334,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                         child: 
                         Text(
-                          _lineInfo.stationName[4],
+                          _setStationName.isNotEmpty? _setStationName[4] : _lineInfo.stationName[4],
                           style: const TextStyle(fontFamily: "BIZUDPGothic", fontSize: 28)
                         ),
                       ),
-                       
                     ],
                   )
                   
@@ -243,16 +348,26 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 IconButton(
-                  onPressed: (){}, 
+                  onPressed: (){
+                    setState(() {
+                      _isUpList = true;
+                      _getDistance();
+                    });
+                  }, 
                   icon: const Icon(Icons.arrow_drop_up),
                   iconSize: 60.0,
-                  color: _routeInfo.routeColor[0],
+                  color: _isUpList? Color.fromARGB(98, 0, 0, 0) : _routeInfo.routeColor[0],
                 ),
                 IconButton(
-                  onPressed: (){},
+                  onPressed: (){
+                    setState(() {
+                      _isUpList = false;
+                      _getDistance();
+                    });
+                  },
                   icon: const Icon(Icons.arrow_drop_down),
                   iconSize: 60.0,
-                  color: _routeInfo.routeColor[0],
+                  color: _isUpList? _routeInfo.routeColor[0] : Color.fromARGB(98, 0, 0, 0),
                 ),
               ],
             ),
@@ -344,7 +459,7 @@ class _MyHomePageState extends State<MyHomePage> {
         
       floatingActionButton: FloatingActionButton(
         backgroundColor: _routeInfo.routeColor[0],
-        onPressed: _incrementCounter,
+        onPressed: _getDistance,
         tooltip: 'Increment',
         child: const Icon(
             Icons.gps_fixed,
