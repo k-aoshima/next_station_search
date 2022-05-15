@@ -1,3 +1,4 @@
 TY,東急東横線,TYLine.txt,#DA0042
 JN,JR南武線,JNLine.txt,#FFD700
 TR,東葉高速線,TRLine.txt,#8FC31E
+G,銀座線,GLine.txt,#FF9500

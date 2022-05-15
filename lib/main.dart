@@ -422,7 +422,7 @@ class _MyHomePageState extends State<MyHomePage> {
         
       drawer: 
         SizedBox(
-          width: 200,
+          width: 180,
           child:Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -431,6 +431,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   decoration: BoxDecoration(color: _routeInfo.routeColor[_selectedRoute]),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 70, 10),
                         child: Stack(
