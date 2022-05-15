@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 import 'settings/routeInfo.dart';
 
-  String TEN_SECONDS = '10秒';
-  String FIFTEEN_SECONDS = '15秒';
-  String THIRTY_SECONDS = '30秒';
-  String ONE_MINUTES = '1分';
-  String FIVE_MINUTES = '5分';
-  String TEN_MINUTES = '10分';
-
 class ReadIntervalSettingScreen extends StatefulWidget{
 
   final RouteInfo routeInfo;
   final int loopSec;
-  ReadIntervalSettingScreen(this.routeInfo, this.loopSec);
+  ReadIntervalSettingScreen(this.routeInfo, this.loopSec, {Key? key}) : super(key: key);
 
   @override
   _ReadIntervalSettingScreenState createState()=> _ReadIntervalSettingScreenState(this.routeInfo, this.loopSec);
@@ -26,12 +19,12 @@ class _ReadIntervalSettingScreenState extends State<ReadIntervalSettingScreen>{
   
 
   List<String> timeSettingArray = [
-                                    TEN_SECONDS, 
-                                    FIFTEEN_SECONDS, 
-                                    THIRTY_SECONDS, 
-                                    ONE_MINUTES,
-                                    FIVE_MINUTES, 
-                                    TEN_MINUTES
+                                    '10秒', 
+                                    '15秒', 
+                                    '30秒', 
+                                    '1分',
+                                    '5分', 
+                                    '10分'
                                   ];
 
   _ReadIntervalSettingScreenState(this.routeInfo, this.loopSec);
@@ -58,7 +51,7 @@ class _ReadIntervalSettingScreenState extends State<ReadIntervalSettingScreen>{
             style: TextStyle(
             fontFamily: "BIZUDPGothic"
           )),
-          backgroundColor: Color.fromARGB(180, 18, 16, 16),
+          backgroundColor: const Color.fromARGB(180, 18, 16, 16),
         ),
         body: ListView(
           children: [

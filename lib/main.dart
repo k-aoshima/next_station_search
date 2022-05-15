@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:next_station_search/settings/app_settings.dart';
@@ -46,10 +47,14 @@ class MyApp extends StatelessWidget {
         future:_startAppSetData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if(snapshot.hasData && getData){
-            print('Exit Load Settings');
-            return MyHomePage();
+            if (kDebugMode) {
+              print('Exit Load Settings');
+            }
+            return const MyHomePage();
           }else{
-            print('Start Load Settings');
+            if (kDebugMode) {
+              print('Start Load Settings');
+            }
             return createProgressIndicator();
           }
         },
@@ -75,8 +80,8 @@ Future _startAppSetData() async {
   
   if(!getData){
     await _routeInfo.getCsvData();
-    await GetSettingData();
-    await _lineInfo.getCsvData(_routeInfo.csvFileName[Settings.selectedRoute]); 
+    await getSettingData();
+    await _lineInfo.getCsvData(_routeInfo.csvFileName[settings.selectedRoute]); 
     getData = true;
   }
 
@@ -90,17 +95,17 @@ class _MyHomePageState extends State<MyHomePage> {
   
   bool _isUpList = false;
   int _selectedRoute = 0;
-  int _loopSec = 10;
+  int _loopSec = 60;
   
   Timer? _timer;
   
 
   @override
   void initState(){
-    if(Settings.selectedLoopTime > _loopSec){
-      _loopSec = Settings.selectedLoopTime;  
+    if(settings.selectedLoopTime > _loopSec){
+      _loopSec = settings.selectedLoopTime;  
     }
-    _selectedRoute = Settings.selectedRoute;
+    _selectedRoute = settings.selectedRoute;
 
     _getDistance();
     _timer ??= Timer.periodic(Duration(seconds: _loopSec), _onTimer);
@@ -109,7 +114,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onTimer(Timer timer){
     var now = DateTime.now();
-    print(now.toString() + ' : loopGPS');
+    if (kDebugMode) {
+      print(now.toString() + ' : loopGPS');
+    }
     _getDistance();
   }
 
@@ -202,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     for(int i = 0; i < _lineInfo.lineNo.length; i++){
       
-      distance = await DistanceInMeters(
+      distance = await distanceInMeters(
           double.parse(_lineInfo.latitude[i]),
           double.parse(_lineInfo.longitude[i])
         );
@@ -211,11 +218,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
     distance = dic.values.reduce(min);
 
-    for (var item in dic.keys) {
-      if(dic[item] == distance){
-        break;
+    bool seachCompleate = false;
+
+    while(!seachCompleate){
+
+      for (var item in dic.keys) {
+        // リストの最小値がキーとマッチすれば終了条件に入る
+        if(dic[item] == distance){
+          // 現在地が10m以内に入っていれば駅にいると見なし、次の駅を再検索
+          // また、現在駅が終点の場合にはインクリメントを追加しない
+          if((distance <= 10.0) && (ret > 0 && ret < _lineInfo.stationName.length)){
+            dic.remove(_lineInfo.stationName[ret]);
+            distance = dic.values.reduce(min);
+            ret = 1;
+            break;
+          }
+          seachCompleate = true;
+          break;
+        }
+        ret++;
       }
-      ret++;
     }
   
     setState(() {
@@ -241,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Padding(padding: EdgeInsetsDirectional.fromSTEB(40, 0, 10, 0),
+            Padding(padding: const EdgeInsetsDirectional.fromSTEB(40, 0, 10, 0),
               child: Stack(
                 alignment: const Alignment(0, 0),
                 children: [
@@ -261,7 +283,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               _routeInfo.routeName[_selectedRoute],
-              style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontFamily: "BIZUDPGothic", fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -281,27 +303,27 @@ class _MyHomePageState extends State<MyHomePage> {
                 
                 children: [
                   Stack(
-                    alignment: Alignment(-4, 0.05),
+                    alignment: const Alignment(-4, 0.05),
                     children: [
                       CustomPaint(
                         painter: TrianglePainter(_routeInfo.routeColor[_selectedRoute]),
-                        child: Container(
+                        child: const SizedBox(
                             height: 60,
                             width: 45,
                           )
                       ),
                       const Text(
                         'Next',
-                        style: const TextStyle(fontFamily: "BIZUDPGothic", fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontFamily: "BIZUDPGothic", fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                   
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
                     child: CustomPaint(
                       painter: SquarePainter(_routeInfo.routeColor[_selectedRoute]),
-                      child: Container(
+                      child: const SizedBox(
                         height: 75,
                         width: 5,
                       )
@@ -379,7 +401,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   }, 
                   icon: const Icon(Icons.arrow_drop_up),
                   iconSize: 60.0,
-                  color: _isUpList? Color.fromARGB(98, 0, 0, 0) : _routeInfo.routeColor[_selectedRoute],
+                  color: _isUpList? const Color.fromARGB(98, 0, 0, 0) : _routeInfo.routeColor[_selectedRoute],
                 ),
                 IconButton(
                   onPressed: (){
@@ -390,7 +412,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   icon: const Icon(Icons.arrow_drop_down),
                   iconSize: 60.0,
-                  color: _isUpList? _routeInfo.routeColor[_selectedRoute] : Color.fromARGB(98, 0, 0, 0),
+                  color: _isUpList? _routeInfo.routeColor[_selectedRoute] : const Color.fromARGB(98, 0, 0, 0),
                 ),
               ],
             ),
@@ -410,7 +432,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(padding: EdgeInsetsDirectional.fromSTEB(0, 0, 70, 10),
+                      Padding(padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 70, 10),
                         child: Stack(
                           alignment: const Alignment(0, 0),
                           children: [
@@ -442,7 +464,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 
                 ListTile(
-                  trailing: Icon(
+                  trailing: const Icon(
                     Icons.arrow_forward_ios,
                     size: 15.0,
                   ),
@@ -451,18 +473,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(
                     fontFamily: "BIZUDPGothic"
                   )),
-                  onTap:()async {
-                    var result = await Navigator.push(
+                  onTap:() {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => RouteSettingScreen(_routeInfo, _selectedRoute)),
                     ).then((value) => {
-                      SetSelectedRoute(value),
+                      setSelectedRoute(value),
                       _getFutureData(value)
                     });
                   }
                 ),
                 ListTile(
-                  trailing: Icon(
+                  trailing: const Icon(
                     Icons.arrow_forward_ios,
                     size: 15.0,
                   ),
@@ -477,7 +499,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => ReadIntervalSettingScreen(_routeInfo, _loopSec)),
                     ).then((value) => {
                       setState(() {
-                        SetSelectedLoopTime(value);
+                        setSelectedLoopTime(value);
                         _loopSec = value;
                         _timer?.cancel();
                         if(_timer != null){

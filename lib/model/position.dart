@@ -3,7 +3,7 @@ import 'package:geolocator/geolocator.dart';
 /// デバイスの現在位置を決定する。
 /// 位置情報サービスが有効でない場合、または許可されていない場合。
 /// エラーを返します
-Future<Position> DeterminePosition() async {
+Future<Position> determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
 
@@ -38,21 +38,9 @@ Future<Position> DeterminePosition() async {
   return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
 }
 
-Future<Position> GetLocation() async{
-  Position position = await DeterminePosition();
-  // 北緯がプラス。南緯がマイナス
-  print("緯度: " + position.latitude.toString());
-  // 東経がプラス、西経がマイナス
-  print("経度: " + position.longitude.toString());
-  // 高度
-  print("高度: " + position.altitude.toString());
+Future<double> distanceInMeters(double endLatitude, double endLongitude) async{
 
-  return position;
-}
-
-Future<double> DistanceInMeters(double endLatitude, double endLongitude) async{
-
-  Position position = await DeterminePosition();
+  Position position = await determinePosition();
   double startLatitude = position.latitude;
   double startLongitude = position.longitude;
 

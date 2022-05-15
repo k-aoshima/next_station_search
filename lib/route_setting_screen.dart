@@ -43,7 +43,7 @@ class _RouteSettingScreenState extends State<RouteSettingScreen>{
             style: TextStyle(
             fontFamily: "BIZUDPGothic"
           )),
-          backgroundColor: Color.fromARGB(180, 18, 16, 16),
+          backgroundColor: const Color.fromARGB(180, 18, 16, 16),
         ),
         body: ListView(
           children: [
