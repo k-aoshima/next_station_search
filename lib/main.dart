@@ -225,12 +225,33 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var item in dic.keys) {
         // リストの最小値がキーとマッチすれば終了条件に入る
         if(dic[item] == distance){
-          // 現在地が10m以内に入っていれば駅にいると見なし、次の駅を再検索
+          // 現在地が50m以上離れていれば駅から離れていると見なし、次の駅を再検索
           // また、現在駅が終点の場合にはインクリメントを追加しない
-          if((distance <= 10.0) && (ret > 0 && ret < _lineInfo.stationName.length)){
-            dic.remove(_lineInfo.stationName[ret]);
-            distance = dic.values.reduce(min);
-            ret = 1;
+          if((distance >= 50.0) && (ret > 0 && ret < _lineInfo.stationName.length)){
+            // 現在駅から近い駅を二つ取得
+            double beforeNearStation1 = await getNearStation1(ret);
+            double beforeNearStation2 = await getNearStation2(ret);
+
+            // 進んだ先が分かるように3秒待機 
+            Future.delayed(const Duration(seconds: 3));
+
+            double afterNearStation1 = await getNearStation1(ret);
+            double afterNearStation2 = await getNearStation2(ret);
+
+            // 差分を取得
+            double diffStation1 = afterNearStation1 - beforeNearStation1;
+            double diffStation2 = afterNearStation2 - beforeNearStation2;
+
+            // 近付いている駅は差分が少ない方
+            if(diffStation1 < diffStation2){
+              ret++;
+            }
+            else if(diffStation2 < diffStation1){
+              ret--;
+            }
+            // その場に止まっていれば、現在駅を次駅とする
+
+            seachCompleate = true;
             break;
           }
           seachCompleate = true;
@@ -243,6 +264,30 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _setStation(ret);
     });
+  }
+
+  Future<double> getNearStation1(int ret) async{
+    double nearStation1 = 0;
+    if(ret + 1 > _lineInfo.stationName.length){
+      nearStation1 = await distanceInMeters(
+        double.parse(_lineInfo.latitude[ret + 1]),
+        double.parse(_lineInfo.longitude[ret + 1])
+      );
+    }
+
+    return nearStation1;
+  }
+
+  Future<double> getNearStation2(int ret) async{
+    double nearStation2 = 0;
+    if(ret - 1 < _lineInfo.stationName.length){
+      nearStation2 = await distanceInMeters(
+        double.parse(_lineInfo.latitude[ret - 1]),
+        double.parse(_lineInfo.longitude[ret - 1])
+      );
+    }
+
+    return nearStation2;
   }
 
   double _nextStationFontSize(String nextStationName){
