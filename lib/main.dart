@@ -227,13 +227,13 @@ class _MyHomePageState extends State<MyHomePage> {
         if(dic[item] == distance){
           // 現在地が50m以上離れていれば駅から離れていると見なし、次の駅を再検索
           // また、現在駅が終点の場合にはインクリメントを追加しない
-          if((distance >= 50.0) && (ret > 0 && ret < _lineInfo.stationName.length)){
+          if((distance >= 30.0) && (ret > 0 && ret < _lineInfo.stationName.length)){
             // 現在駅から近い駅を二つ取得
             double beforeNearStation1 = await getNearStation1(ret);
             double beforeNearStation2 = await getNearStation2(ret);
 
             // 進んだ先が分かるように3秒待機 
-            Future.delayed(const Duration(seconds: 3));
+            Future.delayed(const Duration(seconds: 5));
 
             double afterNearStation1 = await getNearStation1(ret);
             double afterNearStation2 = await getNearStation2(ret);
@@ -250,7 +250,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ret--;
             }
             // その場に止まっていれば、現在駅を次駅とする
-
             seachCompleate = true;
             break;
           }
