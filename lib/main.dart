@@ -9,8 +9,6 @@ import 'settings/lineInfo.dart';
 import 'dart:async';
 import 'route_setting_screen.dart';
 import 'package:next_station_search/widget/widget_utils.dart';
-import 'package:next_station_search/settings/lineInfo.dart';
-import 'package:next_station_search/settings/routeInfo.dart';
 import 'package:next_station_search/model/position.dart';
 
 
