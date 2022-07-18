@@ -1,16 +1,24 @@
-# next_station_search
+NextStation is...
+====
+現在地から次の駅が分かるアプリ
 
-A new Flutter project.
+## Description
+次の駅をリアルタイムで表示してくれるアプリです。GPSを活用し、次の駅を自動で表示します。満員電車で車内のモニターが見れない時、車内で寝てしまっていて次の駅が分からない時に活用してくれる事を期待しています。路線の追加は座標が記載されたcsvを更新することでローカル線にも容易に対応できるようになっています。
 
-## Getting Started
+システムの構成は以下画像の通りです。
+geolocatorは現在座標を取得、画面にはcsvに記載されている座標データを元に接近している駅を画面に表示します。
 
-This project is a starting point for a Flutter application.
+![NSSClassImg](https://user-images.githubusercontent.com/66909211/179436250-a8d53985-b9e7-4163-966c-924dab86b92d.png)
 
-A few resources to get you started if this is your first Flutter project:
+## Demo
+ユーザーはまず、設定画面から乗車する路線を選択します。
+あとは画面を確認するだけで次駅を確認することができます。
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+![NextStationSerch_detail](https://user-images.githubusercontent.com/66909211/179435353-c78f6464-5d27-4f1a-a00f-b88029434bee.PNG)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Licence
+
+[MIT](https://github.com/tcnksm/tool/blob/master/LICENCE)
+
+
+
