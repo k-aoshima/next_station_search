@@ -14,7 +14,8 @@ geolocatorは現在座標を取得、画面にはcsvに記載されている座�
 ユーザーはまず、設定画面から乗車する路線を選択します。
 あとは画面を確認するだけで次駅を確認することができます。
 
-![NextStationSerch_detail](https://user-images.githubusercontent.com/66909211/179435353-c78f6464-5d27-4f1a-a00f-b88029434bee.PNG)
+![NextStationSerch_detail](https://user-images.githubusercontent.com/66909211/179437287-19b807c2-bc34-4e0c-9905-1babd6ceb0f3.gif)
+
 
 ## Licence
 
